@@ -3,12 +3,18 @@ Project 6
 
 Summary of Project
 
+Code for Person 1
 ```{r}
 summary(cars)
 ```
 
-You can also embed plots, for example:
 
+Code for Person 2
+```{r fig.width=7, fig.height=6}
+plot(cars)
+```
+
+Code for Person 3
 ```{r fig.width=7, fig.height=6}
 plot(cars)
 ```
