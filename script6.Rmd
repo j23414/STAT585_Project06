@@ -6,7 +6,15 @@ Summary of Project
 
 Code for Sam Helmich
 ```{r}
-summary(cars)
+library(RSQLite)
+dbConnect(dbDriver("SQLite"), dbname="flights")
+
+nov <- read.csv("november.csv")
+dec <- read.csv("december.csv")
+
+dat <- rbind(nov, dec)
+rm(nov, dec)
+
 ```
 
 
