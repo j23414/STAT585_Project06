@@ -9,10 +9,17 @@ Code for Sam Helmich
 library(RSQLite)
 con <- dbConnect(dbDriver("SQLite"), dbname="flights")
 
+flights_db <- src_sqlite("flights.sqlite3", create = T)
+nov <- read.csv("november.csv")
+copy_to(flights_db, read.csv("november.csv"), temporary = FALSE)
+
+
 dbWriteTable(con,"flights", "november.csv")
 dbWriteTable(con, "flights", "december.csv", append = T)
 
 dbDisconnect(con)
+
+library(dplyr)
 
 ```
 
