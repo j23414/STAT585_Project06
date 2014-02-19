@@ -21,17 +21,19 @@ tbl_vars(hflights_sqlite)
 
 # We'll go with LAX
 # LAX ID = 12892
-lax <- as.data.frame(hflights_sqlite %.%
+lax <- hflights_sqlite %.%
           filter(ORIGIN_AIRPORT_ID == 12892 | DEST_AIRPORT_ID == 12892) %.%
           group_by(DAY_OF_WEEK) %.%
-          select(DAY_OF_WEEK, DEP_DELAY, DEP_TIME, ARR_DELAY, ARR_TIME))
+          select(DAY_OF_WEEK, DEP_DELAY, DEP_TIME, ARR_DELAY, ARR_TIME)
+
+lax.df <- as.data.frame(lax)
           
-lax$sch.depart <- with(lax, DEP_TIME - DEP_DELAY)
-lax$sch.arr <- with(lax, ARR_TIME - ARR_DELAY)
+lax.df$sch.depart <- with(lax, DEP_TIME - DEP_DELAY)
+lax.df$sch.arr <- with(lax, ARR_TIME - ARR_DELAY)
 library(ggplot2)
 
-qplot(DEP_TIME,DEP_DELAY, data = lax, facets = .~DAY_OF_WEEK, main = "Departures")
-qplot(ARR_TIME, ARR_DELAY, data = lax, facets = .~DAY_OF_WEEK, main = "Arrivals")
+qplot(DEP_TIME,DEP_DELAY, data = lax.df, facets = .~DAY_OF_WEEK, main = "Departures")
+qplot(ARR_TIME, ARR_DELAY, data = lax.df, facets = .~DAY_OF_WEEK, main = "Arrivals")
 
 ```
 
