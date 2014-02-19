@@ -26,7 +26,15 @@ library(dplyr)
 
 Code for Sen Zhou
 ```{r fig.width=7, fig.height=6}
-plot(cars)
+
+mydata<-read.csv('/Users/senzhou/Documents/stat/stat_06/flight11.csv') 
+mydf<-as.data.frame(mydata) ## data as dataframe
+
+
+my_db <- src_sqlite("my_db.sqlite3", create = T)
+flights_sql <- copy_to(my_db, mydf, temporary = FALSE)
+
+
 ```
 
 Code for Jennifer Chang
