@@ -67,19 +67,28 @@ flights_sql <- copy_to(my_db, mydf, temporary = FALSE)
 Code for Jennifer Chang
 ```{r fig.width=7, fig.height=6}
 data_loc<-"/Users/jenchang/Desktop/STAT585/Projects/Proj6/"
+
+# install & load required packages
 install.packages('dplyr')
 install.packages('RSQLite')
+install.packages("RSQLite.extfuns")
 library(dplyr)
 library(RSQLite)
-my_db <- dbConnect(dbDriver("SQLite"), dbname="flights")
-dbListTables(my_db)
+library(RSQLite.extfuns)
 
+
+# Load Data
 nov <- read.csv("/Users/jenchang/Desktop/STAT585/Projects/Proj6/data/november2013.csv")
 dec <- read.csv("/Users/jenchang/Desktop/STAT585/Projects/Proj6/dec2013.csv")
 
-a<-select(nov, YEAR, QUARTER, MONTH)
+# connect to database and move data over
+my_db <- src_sqlite("my_db.sqlite3", create = T)
+hflights_sqlite <- copy_to(my_db, nov, temporary = FALSE)
 
-copy_to(my_db, a, temporary=FALSE)
+# focus on LAX 12892
+arrivals<-filter(hflights_sqlite,ORIGIN_AIRPORT_ID==12892)
+departures<-filter
+out_df <-collect(arrivals)
 
 # create table
 dbGetQuery(co, "CREATE TABLE IF NOT EXISTS nd_flights (
@@ -92,7 +101,6 @@ dbGetQuery(co, "CREATE TABLE IF NOT EXISTS nd_flights (
   time CHAR(5),
   size INT
   )")
-
 
 # open sqlite connection
 my_db <- src_sqlite(“mydb.sqlite3”, create=T)
