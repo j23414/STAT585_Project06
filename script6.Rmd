@@ -12,8 +12,12 @@ library(dplyr)
 # This part runs
 my_db <- src_sqlite("my_db.sqlite3", create = T)
 nov <- read.csv("november.csv")
-hflights_sqlite <- copy_to(my_db, nov, temporary = FALSE)
+dec <- read.csv("december.csv")
+data <- rbind(nov, dec)
+hflights_sqlite <- copy_to(my_db, data, temporary = FALSE)
+rm(nov, dec, data)
 
+tbl_vars(hflights_sqlite)
 
 # Ignore below here
 
