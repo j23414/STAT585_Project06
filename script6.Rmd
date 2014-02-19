@@ -9,6 +9,11 @@ Code for Sam Helmich
 library(RSQLite)
 library(dplyr)
 
+## Variables in dataset:
+# [1] "DAY_OF_WEEK"           "ORIGIN_AIRPORT_ID"     "ORIGIN_AIRPORT_SEQ_ID" "ORIGIN_CITY_MARKET_ID"
+#  [5] "DEST_AIRPORT_ID"       "DEST_AIRPORT_SEQ_ID"   "DEST_CITY_MARKET_ID"   "DEP_TIME"             
+#  [9] "DEP_DELAY"             "ARR_TIME"              "ARR_DELAY"             "X"  
+
 # This part runs
 my_db <- src_sqlite("my_db.sqlite3", create = T)
 nov <- read.csv("november.csv")
@@ -38,7 +43,7 @@ qplot(ARR_TIME, ARR_DELAY, data = lax.df, facets = .~DAY_OF_WEEK, main = "Arriva
 ```
 
 Code for Jennifer Chang
-```{r fig.width=7, fig.height=6}
+```{r fig.width=7, fig.height=6, eval = FALSE}
 data_loc<-"/Users/jenchang/Desktop/STAT585/Projects/Proj6/"
 
 # install & load required packages
