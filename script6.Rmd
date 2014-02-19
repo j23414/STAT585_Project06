@@ -7,13 +7,12 @@ Summary of Project
 Code for Sam Helmich
 ```{r}
 library(RSQLite)
-dbConnect(dbDriver("SQLite"), dbname="flights")
+con <- dbConnect(dbDriver("SQLite"), dbname="flights")
 
-nov <- read.csv("november.csv")
-dec <- read.csv("december.csv")
+dbWriteTable(con,"flights", "november.csv")
+dbWriteTable(con, "flights", "december.csv", append = T)
 
-dat <- rbind(nov, dec)
-rm(nov, dec)
+dbDisconnect(con)
 
 ```
 
