@@ -55,9 +55,16 @@ my_db <- src_sqlite("my_db.sqlite3", create = T)
 hflights_sqlite <- copy_to(my_db, nov, temporary = FALSE)
 
 # focus on LAX 12892
-arrivals<-filter(hflights_sqlite,ORIGIN_AIRPORT_ID==12892)
-departures<-filter
-out_df <-collect(arrivals)
+LAX_flights<-filter(hflights_sqlite,ORIGIN_AIRPORT_ID == 12892 | DEST_AIRPORT_ID == 12892)
+out_df <-collect(LAX_flights)
+dep<-filter(hflights_sqlite,ORIGIN_AIRPORT_ID==12892)
+dep_df<-collect(dep)
+arr<-filter(hflights_sqlite,DEST_AIRPORT_ID==12892)
+arr_df<-collect(arr)
+
+# Plot
+library(ggplot2)
+qplot(DAY_OF_WEEK, DEP_DELAY, data=dep_df)
 
 # create table
 dbGetQuery(co, "CREATE TABLE IF NOT EXISTS nd_flights (
