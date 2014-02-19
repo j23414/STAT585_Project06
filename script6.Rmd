@@ -17,8 +17,24 @@ plot(cars)
 
 Code for Jennifer Chang
 ```{r fig.width=7, fig.height=6}
+data_loc<-"/Users/jenchang/Desktop/STAT585/Projects/Proj6/"
+
 library(RSQLite)
 my_db <- dbConnect(dbDriver("SQLite"), dbname="flights")
+dbListTables(my_db)
+
+dbGetQuery(co, "CREATE TABLE IF NOT EXISTS nd_flights (
+  obs INT PRIMARY KEY NOT NULL,
+  totbill DOUBLE,
+  tip DOUBLE,
+  sex CHAR(1),
+  smoker CHAR(3),
+  day CHAR(3),
+  time CHAR(5),
+  size INT
+  )")
+
+
 dbDisconnect(my_db)
 ```
 
