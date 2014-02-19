@@ -1,20 +1,21 @@
 Project 6
 ========================================================
+Helmich        Sam shelmich,  Zhou        Sen  senzhou, Chang   Jennifer jenchang
 
 Summary of Project
 
-Code for Person 1
+Code for Sam Helmich
 ```{r}
 summary(cars)
 ```
 
 
-Code for Person 2
+Code for Sen Zhou
 ```{r fig.width=7, fig.height=6}
 plot(cars)
 ```
 
-Code for Person 3
+Code for Jennifer Chang
 ```{r fig.width=7, fig.height=6}
 library(RSQLite)
 my_db <- dbConnect(dbDriver("SQLite"), dbname="flights")
