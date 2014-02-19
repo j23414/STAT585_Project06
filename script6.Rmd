@@ -7,19 +7,61 @@ Summary of Project
 Code for Sam Helmich
 ```{r}
 library(RSQLite)
-con <- dbConnect(dbDriver("SQLite"), dbname="flights")
+library(dplyr)
+
+# This part runs
+my_db <- src_sqlite("my_db.sqlite3", create = T)
+nov <- read.csv("november.csv")
+hflights_sqlite <- copy_to(my_db, nov, temporary = FALSE)
+
+
+# Ignore below here
+
+library(hflights)
+hflights_sqlite <- copy_to(my_db, hflights, temporary = FALSE, indexes = list(
+  c("Year", "Month", "DayofMonth"), "UniqueCarrier", "TailNum"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+# con <- dbConnect(dbDriver("SQLite"), dbname="flights")
+
+flights_db <- src_sqlite("flights", create = T)
+
+test <- copy_to(flights_db, read.csv("november.csv"), temporary = FALSE)
+
+
 
 dbWriteTable(con,"flights", "november.csv")
 dbWriteTable(con, "flights", "december.csv", append = T)
 
 dbDisconnect(con)
 
+library(dplyr)
+
 ```
 
 
 Code for Sen Zhou
 ```{r fig.width=7, fig.height=6}
-plot(cars)
+
+mydata<-read.csv('/Users/senzhou/Documents/stat/stat_06/flight11.csv') 
+mydf<-as.data.frame(mydata) ## data as dataframe
+
+
+my_db <- src_sqlite("my_db.sqlite3", create = T)
+flights_sql <- copy_to(my_db, mydf, temporary = FALSE)
+
+
 ```
 
 Code for Jennifer Chang
