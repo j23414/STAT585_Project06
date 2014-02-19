@@ -31,6 +31,10 @@ library(RSQLite)
 my_db <- dbConnect(dbDriver("SQLite"), dbname="flights")
 dbListTables(my_db)
 
+nov <- read.csv("/Users/jenchang/Desktop/STAT585/Projects/Proj6/data/november2013.csv")
+dec <- read.csv("/Users/jenchang/Desktop/STAT585/Projects/Proj6/dec2013.csv")
+
+# create table
 dbGetQuery(co, "CREATE TABLE IF NOT EXISTS nd_flights (
   obs INT PRIMARY KEY NOT NULL,
   totbill DOUBLE,
@@ -43,6 +47,26 @@ dbGetQuery(co, "CREATE TABLE IF NOT EXISTS nd_flights (
   )")
 
 
+# open sqlite connection
+my_db <- src_sqlite(“mydb.sqlite3”, create=T)
+
+# load your data into database & setting indexes
+yourdata_sqlite <- copy_to(my_db, yourdata, temporary=FALSE, indexes = list( c(“col1”, “col2”), col3))
+yourdata_sqlite_df <- tbl(my_db, sql(“SELECT * from yourdata”))  # do we need this?
+
+# ===  Basic Actions (VERBS) === looks the same as above!!!! <3
+filter( yourdata_sqlite_df, col1==”value1”, col2==”value2”)  # filter data by column values
+arrange( yourdata_sqlite_df, col2, col4)                                   # arrange data rows by column values
+select( yourdata_sqlite_df, col2,col4)                                       # select certain columns of data 
+mutate( yourdata_sqlite_df, diff = col2 - col4, percentage = col2 / col4)  # mutate, adding columns
+summarize( yourdata_sqlite_df, avg = mean(col2, na.rm=TRUE)   # summarize a column of values
+
+# get tbl_df of results using collect (sql statements not executed on database until R needs to print it out)
+out <- select( yourdata_sqlite_df, col2,col4)
+your_final_data_df <-collect(out)
+
+# close sqlite connection
 dbDisconnect(my_db)
+
 ```
 
