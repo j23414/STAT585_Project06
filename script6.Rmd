@@ -25,13 +25,19 @@ plot(cars)
 Code for Jennifer Chang
 ```{r fig.width=7, fig.height=6}
 data_loc<-"/Users/jenchang/Desktop/STAT585/Projects/Proj6/"
-
+install.packages('dplyr')
+install.packages('RSQLite')
+library(dplyr)
 library(RSQLite)
 my_db <- dbConnect(dbDriver("SQLite"), dbname="flights")
 dbListTables(my_db)
 
 nov <- read.csv("/Users/jenchang/Desktop/STAT585/Projects/Proj6/data/november2013.csv")
 dec <- read.csv("/Users/jenchang/Desktop/STAT585/Projects/Proj6/dec2013.csv")
+
+a<-select(nov, YEAR, QUARTER, MONTH)
+
+copy_to(my_db, a, temporary=FALSE)
 
 # create table
 dbGetQuery(co, "CREATE TABLE IF NOT EXISTS nd_flights (
