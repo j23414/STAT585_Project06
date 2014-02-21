@@ -4,22 +4,8 @@ Team: Sam Helmich, Sen Zhou, Jennifer Chang
 
 Date: 20 February 2014
 
-Get the Data and Load into R
-------------------
-Download dataset for November and December 2014 from the following website.  
-http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236&DB_Short_Name=On-Time
-
-Select the following variables if they are not already selected: DAY_OF_WEEK,ORIGIN_AIRPORT_ID, DEST_AIRPORT_ID, DEP_TIME, DEP_DELAY, ARR_TIME, ARR_DELAY, CANCELLED, CANCELLATION_CODE
-
-Load the dataset into R
-```{r}
-nov <- read.csv("november.csv")
-dec <- read.csv("december.csv")
-data3 <- rbind(nov, dec)
-```
-
-Load the Data into SQLite
--------------------------
+Getting Ready
+-----------------
 Load required libraries
 ```{r, message=FALSE}
 library(RSQLite)
@@ -28,12 +14,30 @@ library(dplyr)
 library(plyr)
 ```
 
-Start the SQLite Connection, creating the database if it does not already exist and load the data into the SQL database.
+Create a SQLite database flights in your working directory
 ```{r}
-my_db <- src_sqlite("my_db.sqlite3", create = T)
-hflights_sqlite <- copy_to(my_db, data3, temporary = TRUE)
-rm(nov, dec, data3)
+my_db <- src_sqlite("flights", create = T)
 ```
+
+Get the Data
+------------------
+Download dataset for November and December 2014 from the following website.  
+http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236&DB_Short_Name=On-Time
+
+Select the following variables if they are not already selected: DAY_OF_WEEK,ORIGIN_AIRPORT_ID, DEST_AIRPORT_ID, DEP_TIME, DEP_DELAY, ARR_TIME, ARR_DELAY, CANCELLED, CANCELLATION_CODE
+
+Load the data into the SQL database.
+```{r}
+nov<-read.csv("laxnov.csv")
+dec<-read.csv("laxdec.csv")
+flights <-rbind(nov,dec)
+hflights_sqlite <- copy_to(my_db, flights)
+dim(hflights_sqlite)
+rm(flights,nov,dec)
+```
+
+LAX Airport Delays
+-------------------
 We decided to focus on LAX (Los Angeles International) airport.  
 LAX ID = 12892
 
@@ -53,14 +57,16 @@ library(ggplot2)
 qplot(DEP_TIME, DEP_DELAY, data = lax.df, facets = .~DAY_OF_WEEK, main = "Departures from LAX", ylab="Delay in Minutes", xlab="Time")+theme(axis.text.x = element_text(angle = 45, hjust = 1))
 qplot(ARR_TIME, ARR_DELAY, data = lax.df, facets = .~DAY_OF_WEEK, main = "Arrivals to LAX", ylab="Delay in Minutes", xlab="Time")+theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+There were more delays in the evenings to nights.  The lack of delays in the early mornings were probably due the airport shutting down at night.
 
-Investigating Cancelled Flights
------------------
+LAX Airport Cancellations
+-------------------
+We plotted cancellations based on distance for LAX arrivals, departures, and both. 
 ```{r}
 lax.all <- filter(hflights_sqlite, DEST_AIRPORT_ID == 12892 | ORIGIN_AIRPORT_ID == 12892)
 lax.canc<- filter(lax.all, CANCELLED==1)
 lax.canc.df <-collect(lax.canc)
-qplot(DISTANCE, data=lax.canc.df, binwidth=50, main="Cancelled Flights from or to LAX")
+qplot(DISTANCE, data=lax.canc.df, main="Cancelled Flights from or to LAX")
 
 # arrivals
 lax.canc.arr<-filter(lax.canc.df,DEST_AIRPORT_ID == 12892)
@@ -68,7 +74,7 @@ qplot(DISTANCE, data=lax.canc.arr,main = "Cancelled Flights to LAX")
 lax.canc.dep<-filter(lax.canc.df,ORIGIN_AIRPORT_ID == 12892)
 qplot(DISTANCE, data=lax.canc.dep,main = "Cancelled Flights from LAX")
 ```
-
+For the most part, there were more short distance flight cancellations than long distance flight cancelations.
 We looked at the CANCELLATION_CODE in order to determine the reason for cancelation however most of the values were missing.
 ```{r}
 lax.canc.df$CANCELLATION_CODE <- mapvalues(lax.canc.df$CANCELLATION_CODE, from = c("A", "B", "C", "D"), to = c("Carrier", "Weather", "National Air System", "Security"))
@@ -77,7 +83,6 @@ sum(lax.canc.df$CANCELLATION_CODE=="Carrier")
 sum(lax.canc.df$CANCELLATION_CODE=="Weather")
 sum(lax.canc.df$CANCELLATION_CODE=="National Air System") 
 sum(lax.canc.df$CANCELLATION_CODE=="Security")
-
 ```
 
 <!-- Comment Chunk
