@@ -9,6 +9,11 @@ Code for Sam Helmich
 library(RSQLite)
 library(dplyr)
 
+## Variables in dataset:
+# [1] "DAY_OF_WEEK"           "ORIGIN_AIRPORT_ID"     "ORIGIN_AIRPORT_SEQ_ID" "ORIGIN_CITY_MARKET_ID"
+#  [5] "DEST_AIRPORT_ID"       "DEST_AIRPORT_SEQ_ID"   "DEST_CITY_MARKET_ID"   "DEP_TIME"             
+#  [9] "DEP_DELAY"             "ARR_TIME"              "ARR_DELAY"             "X"  
+
 # This part runs
 my_db <- src_sqlite("my_db.sqlite3", create = T)
 nov <- read.csv("november.csv")
@@ -21,15 +26,19 @@ tbl_vars(hflights_sqlite)
 
 # We'll go with LAX
 # LAX ID = 12892
-lax.flights <- filter(hflights_sqlite, ORIGIN_AIRPORT_ID == 12892 | DEST_AIRPORT_ID == 12892)
+lax <- hflights_sqlite %.%
+          filter(ORIGIN_AIRPORT_ID == 12892 | DEST_AIRPORT_ID == 12892) %.%
+          group_by(DAY_OF_WEEK) %.%
+          select(DAY_OF_WEEK, DEP_DELAY, DEP_TIME, ARR_DELAY, ARR_TIME)
 
-summarise(flights, length(YEAR))
-tbl_vars(hflights_sqlite)
-# Then we've got 14 variables
+lax.df <- as.data.frame(lax)
+          
+lax.df$sch.depart <- with(lax, DEP_TIME - DEP_DELAY)
+lax.df$sch.arr <- with(lax, ARR_TIME - ARR_DELAY)
+library(ggplot2)
 
-
-
-
+qplot(DEP_TIME,DEP_DELAY, data = lax.df, facets = .~DAY_OF_WEEK, main = "Departures")
+qplot(ARR_TIME, ARR_DELAY, data = lax.df, facets = .~DAY_OF_WEEK, main = "Arrivals")
 
 ```
 
