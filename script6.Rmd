@@ -28,8 +28,8 @@ Select the following variables if they are not already selected: DAY_OF_WEEK,ORI
 
 Load the data into the SQL database.
 ```{r}
-nov<-read.csv("laxnov.csv")
-dec<-read.csv("laxdec.csv")
+nov<-read.csv("november.csv")
+dec<-read.csv("december.csv")
 flights <-rbind(nov,dec)
 hflights_sqlite <- copy_to(my_db, flights)
 dim(hflights_sqlite)
