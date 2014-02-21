@@ -35,7 +35,7 @@ tbl_vars(hflights_sqlite)
 
 Code for Jennifer Chang
 ```{r fig.width=7, fig.height=6}
-data_loc<-"/Users/jenchang/Desktop/STAT585/Projects/Proj6/"
+#data_loc<-"/Users/jenchang/Desktop/STAT585/Projects/Proj6/"
 
 # install & load required packages
 install.packages('dplyr')
@@ -48,7 +48,7 @@ library(RSQLite.extfuns)
 
 # Load Data
 nov <- read.csv("/Users/jenchang/Desktop/STAT585/Projects/Proj6/data/november2013.csv")
-dec <- read.csv("/Users/jenchang/Desktop/STAT585/Projects/Proj6/dec2013.csv")
+dec <- read.csv("/Users/jenchang/Desktop/STAT585/Projects/Proj6/december2013.csv")
 
 # connect to database and move data over
 my_db <- src_sqlite("my_db.sqlite3", create = T)
@@ -62,9 +62,20 @@ dep_df<-collect(dep)
 arr<-filter(hflights_sqlite,DEST_AIRPORT_ID==12892)
 arr_df<-collect(arr)
 
+canceled<-filter(hflights_sqlite, ORIGIN_AIRPORT_ID==12892, CANCELLED==1)
+can_df<-collect(canceled)
+head(CANCELLATION)
 # Plot
 library(ggplot2)
-qplot(DAY_OF_WEEK, DEP_DELAY, data=dep_df)
+qplot(DEP_TIME, DEP_DELAY, data=dep_df, colour=factor(DAY_OF_WEEK))
+qplot(DEP_TIME, DAY_OF_WEEK, data=dep_df)
+
+qplot(CANCELLED, DISTANCE, data=dep_df)
+qplot(CANCELLED, DISTANCE, data=arr_df)
+qplot(DISTANCE, CANCELLED, data=out_df)
+qplot(DISTANCE, data=out_df, fill=factor(CANCELLED))
+
+dim(can_df$CANCELLATION_CODE)
 
 # create table
 dbGetQuery(co, "CREATE TABLE IF NOT EXISTS nd_flights (
@@ -85,12 +96,12 @@ my_db <- src_sqlite(“mydb.sqlite3”, create=T)
 yourdata_sqlite <- copy_to(my_db, yourdata, temporary=FALSE, indexes = list( c(“col1”, “col2”), col3))
 yourdata_sqlite_df <- tbl(my_db, sql(“SELECT * from yourdata”))  # do we need this?
 
-# ===  Basic Actions (VERBS) === looks the same as above!!!! <3
-filter( yourdata_sqlite_df, col1==”value1”, col2==”value2”)  # filter data by column values
-arrange( yourdata_sqlite_df, col2, col4)                                   # arrange data rows by column values
-select( yourdata_sqlite_df, col2,col4)                                       # select certain columns of data 
-mutate( yourdata_sqlite_df, diff = col2 - col4, percentage = col2 / col4)  # mutate, adding columns
-summarize( yourdata_sqlite_df, avg = mean(col2, na.rm=TRUE)   # summarize a column of values
+# ===  Basic Actions (VERBS) === looks the same as above!!!! 
+filter( yourdata_sqlite_df, col1==”value1”, col2==”value2”) 
+arrange( yourdata_sqlite_df, col2, col4)
+select( yourdata_sqlite_df, col2,col4) 
+mutate( yourdata_sqlite_df, diff = col2 - col4, percentage = col2 / col4)
+summarize( yourdata_sqlite_df, avg = mean(col2, na.rm=TRUE) 
 
 # get tbl_df of results using collect (sql statements not executed on database until R needs to print it out)
 out <- select( yourdata_sqlite_df, col2,col4)
