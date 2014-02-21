@@ -13,8 +13,8 @@ Select the following variables if they are not already selected: DAY_OF_WEEK,ORI
 
 Load the dataset into R
 ```{r}
-nov <- read.csv("november.csv")
-dec <- read.csv("december.csv")
+nov <- read.csv("nov3.csv")
+dec <- read.csv("dec3.csv")
 data3 <- rbind(nov, dec)
 ```
 
@@ -59,9 +59,27 @@ qplot(ARR_TIME, ARR_DELAY, data = lax.df, facets = .~DAY_OF_WEEK, main = "Arriva
 Investigating Cancelled Flights
 -----------------
 ```{r}
-lax.canc <- filter(hflights_sqlite, CANCELLED==1)
+lax.all <- filter(hflights_sqlite, DEST_AIRPORT_ID == 12892 | ORIGIN_AIRPORT_ID == 12892)
+lax.canc<- filter(lax.all, CANCELLED==1)
 lax.canc.df <-collect(lax.canc)
-qplot(DISTANCE, data=lax.canc.df)
+qplot(DISTANCE, data=lax.canc.df, binwidth=50, main="Cancelled Flights from or to LAX")
+
+# arrivals
+lax.canc.arr<-filter(lax.canc.df,DEST_AIRPORT_ID == 12892)
+qplot(DISTANCE, data=lax.canc.arr,main = "Cancelled Flights to LAX")
+lax.canc.dep<-filter(lax.canc.df,ORIGIN_AIRPORT_ID == 12892)
+qplot(DISTANCE, data=lax.canc.dep,main = "Cancelled Flights from LAX")
+```
+
+We looked at the CANCELLATION_CODE in order to determine the reason for cancelation however most of the values were missing.
+```{r}
+lax.canc.df$CANCELLATION_CODE <- mapvalues(lax.canc.df$CANCELLATION_CODE, from = c("A", "B", "C", "D"), to = c("Carrier", "Weather", "National Air System", "Security"))
+qplot(CANCELLATION_CODE, data=lax.canc.df)+theme(axis.text.x = element_text(angle = 30, hjust = 1,size=14))
+sum(lax.canc.df$CANCELLATION_CODE=="Carrier")
+sum(lax.canc.df$CANCELLATION_CODE=="Weather")
+sum(lax.canc.df$CANCELLATION_CODE=="National Air System") 
+sum(lax.canc.df$CANCELLATION_CODE=="Security")
+
 ```
 
 <!-- Comment Chunk
