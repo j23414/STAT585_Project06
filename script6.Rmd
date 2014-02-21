@@ -1,27 +1,27 @@
-Project 6: Flights Data for November and December 2013
+Flights Data for November and December 2013
 ========================================================
 Team: Sam Helmich, Sen Zhou, Jennifer Chang
 
-Date: 19 February 2014
+Date: 20 February 2014
 
 Get the Data and Load into R
 ------------------
 Download dataset for November and December 2014 from the following website.  
 http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236&DB_Short_Name=On-Time
 
-Select the following variables if they are not already selected: DAY_OF_WEEK,ORIGIN_AIRPORT_ID, DEST_AIRPORT_ID, DEP_TIME, DEP_DELAY, ARR_TIME, ARR_DELAY
+Select the following variables if they are not already selected: DAY_OF_WEEK,ORIGIN_AIRPORT_ID, DEST_AIRPORT_ID, DEP_TIME, DEP_DELAY, ARR_TIME, ARR_DELAY, CANCELLED, CANCELLATION_CODE
 
 Load the dataset into R
 ```{r}
-nov <- read.csv("nov3.csv")
-dec <- read.csv("dec3.csv")
+nov <- read.csv("november.csv")
+dec <- read.csv("december.csv")
 data3 <- rbind(nov, dec)
 ```
 
 Load the Data into SQLite
 -------------------------
 Load required libraries
-```{r}
+```{r, message=FALSE}
 library(RSQLite)
 library(RSQLite.extfuns)
 library(dplyr)
@@ -34,7 +34,6 @@ Start the SQLite Connection, creating the database if it does not already exist 
 my_db <- src_sqlite("my_db.sqlite3", create = T)
 hflights_sqlite <- copy_to(my_db, data3, temporary = TRUE)
 rm(nov, dec, data3)
-
 ```
 We decided to focus on LAX (Los Angeles International) airport.  
 LAX ID = 12892
