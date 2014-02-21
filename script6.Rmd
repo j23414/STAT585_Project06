@@ -1,11 +1,72 @@
-Project 6
+Project 6: Flights Data for November and December 2013
 ========================================================
-Helmich        Sam shelmich,  Zhou        Sen  senzhou, Chang   Jennifer jenchang
+Team: Sam Helmich, Sen Zhou, Jennifer Chang
 
-Summary of Project
+Date: 19 February 2014
 
-Code for Sam Helmich
+Get the Data and Load into R
+------------------
+Download dataset for November and December 2014 from the following website.  
+http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236&DB_Short_Name=On-Time
+
+Select the following variables if they are not already selected: DAY_OF_WEEK,ORIGIN_AIRPORT_ID, DEST_AIRPORT_ID, DEP_TIME, DEP_DELAY, ARR_TIME, ARR_DELAY
+
+Load the dataset into R
 ```{r}
+nov <- read.csv("november.csv")
+dec <- read.csv("december.csv")
+data3 <- rbind(nov, dec)
+```
+
+Load the Data into SQLite
+-------------------------
+Load required libraries
+```{r}
+library(RSQLite)
+library(RSQLite.extfuns)
+library(dplyr)
+library(plyr)
+library(lubridate)
+```
+
+Start the SQLite Connection, creating the database if it does not already exist and load the data into the SQL database.
+```{r}
+my_db <- src_sqlite("my_db.sqlite3", create = T)
+hflights_sqlite <- copy_to(my_db, data3, temporary = TRUE)
+rm(nov, dec, data3)
+
+```
+We decided to focus on LAX (Los Angeles International) airport.  
+LAX ID = 12892
+
+We looked at departure and arrival delays and how it was related to days of the week and time.
+```{r fig.width=12, fig.height=5}
+lax <- hflights_sqlite %.%
+          filter(ORIGIN_AIRPORT_ID == 12892 | DEST_AIRPORT_ID == 12892) %.%
+          group_by(DAY_OF_WEEK) %.%
+          select(DAY_OF_WEEK, DEP_DELAY, DEP_TIME, ARR_DELAY, ARR_TIME)
+
+lax.df <- as.data.frame(lax)
+
+lax.df$DAY_OF_WEEK <- factor(lax.df$DAY_OF_WEEK)
+lax.df$DAY_OF_WEEK <- mapvalues(lax.df$DAY_OF_WEEK, from = c("1", "2", "3", "4", "5", "6", "7"), to = c("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"))
+
+library(ggplot2)
+qplot(DEP_TIME, DEP_DELAY, data = lax.df, facets = .~DAY_OF_WEEK, main = "Departures from LAX", ylab="Delay in Minutes", xlab="Time")+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+qplot(ARR_TIME, ARR_DELAY, data = lax.df, facets = .~DAY_OF_WEEK, main = "Arrivals to LAX", ylab="Delay in Minutes", xlab="Time")+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Investigating Cancelled Flights
+-----------------
+```{r}
+lax.canc <- filter(hflights_sqlite, CANCELLED==1)
+lax.canc.df <-collect(lax.canc)
+qplot(DISTANCE, data=lax.canc.df)
+```
+
+<!-- Comment Chunk
+Code for Sam Helmich
+//```{r}
 library(RSQLite)
 library(dplyr)
 
@@ -43,7 +104,7 @@ qplot(ARR_TIME, ARR_DELAY, data = lax.df, facets = .~DAY_OF_WEEK, main = "Arriva
 ```
 
 Code for Jennifer Chang
-```{r fig.width=7, fig.height=6}
+//```{r fig.width=7, fig.height=6}
 #data_loc<-"/Users/jenchang/Desktop/STAT585/Projects/Proj6/"
 
 # install & load required packages
@@ -120,4 +181,5 @@ your_final_data_df <-collect(out)
 dbDisconnect(my_db)
 
 ```
+-->
 
