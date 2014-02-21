@@ -26,7 +26,6 @@ library(RSQLite)
 library(RSQLite.extfuns)
 library(dplyr)
 library(plyr)
-library(lubridate)
 ```
 
 Start the SQLite Connection, creating the database if it does not already exist and load the data into the SQL database.
